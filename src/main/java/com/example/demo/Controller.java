@@ -57,6 +57,8 @@ public class Controller {
             for (Repository repo : repos) {
 
                 if (!repo.fork) {
+                    ReposListResponse repo_prep = new ReposListResponse(repo.name, repo.owner.login);
+
                     String branches_url = repo.branches_url.replace("{/branch}", "");
 
                     ResponseEntity<List<Branch>> br_result = defaultClient.get()
@@ -69,8 +71,11 @@ public class Controller {
                     repo.branches = branches;
 
                     for (Branch branch: branches) {
-                        reporesp.add(new ReposListResponse(repo.name, repo.owner.login, branch.name, branch.commit.sha));
+                        repo_prep.branches.add(new BranchResponse(branch.name, branch.commit.sha));
+                        // reporesp.add(new ReposListResponse(repo.name, repo.owner.login, branch.name, branch.commit.sha));
                     }
+
+                    reporesp.add(repo_prep);
                 }
             }
 
@@ -89,5 +94,4 @@ public class Controller {
     public ResponseEntity<?> emptyUser() {
         return new ResponseEntity(new ErrorResponse(404, "Empty username provided"), HttpStatus.NOT_FOUND);
     }
-    
 }
